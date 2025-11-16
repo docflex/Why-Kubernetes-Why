@@ -65,6 +65,27 @@ services:
       retries: 5
 
   # --------------------------------------------------------------
+  # Service C
+  # --------------------------------------------------------------
+  service-c:
+    build: ./services/servicec
+    ports:
+      - "8083"
+    networks:
+      - lab4_net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------
   # NGINX (front reverse proxy)
   # --------------------------------------------------------------
   nginx:
