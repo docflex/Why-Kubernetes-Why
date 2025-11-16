@@ -1,0 +1,96 @@
+networks:
+  lab4_net:
+    driver: bridge
+
+services:
+
+  # --------------------------------------------------------------
+  # Eureka Server
+  # --------------------------------------------------------------
+  eureka-server:
+    build: ./services/eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - lab4_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------
+  # Service A
+  # --------------------------------------------------------------
+  service-a:
+    build: ./services/servicea
+    ports:
+      - "8081"   # optional, no host mapping needed for nginx
+    networks:
+      - lab4_net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------
+  # Service B
+  # --------------------------------------------------------------
+  service-b:
+    build: ./services/serviceb
+    ports:
+      - "8082"
+    networks:
+      - lab4_net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------
+  # NGINX (front reverse proxy)
+  # --------------------------------------------------------------
+  nginx:
+    build: ./infra/nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - lab4_net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  # --------------------------------------------------------------
+  # Eureka → NGINX updater
+  # --------------------------------------------------------------
+  eureka2nginx:
+    build: ./infra/eureka2nginx
+    environment:
+      - EUREKA_URL=http://eureka-server:8761/eureka/apps
+      - POLL_INTERVAL=10
+    volumes:
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - nginx
+      - eureka-server
+    networks:
+      - lab4_net

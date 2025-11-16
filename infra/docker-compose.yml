@@ -1,0 +1,25 @@
+#services:
+#  nginx:
+#    build: ./nginx
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./nginx/conf.d:/etc/nginx/conf.d
+#    networks:
+#      - lab4_net
+#
+#  eureka2nginx:
+#    build: ./eureka2nginx
+#    environment:
+#      - EUREKA_URL=http://host.docker.internal:8761/eureka/apps
+#      - POLL_INTERVAL=10
+#    volumes:
+#      - ./nginx/conf.d:/etc/nginx/conf.d
+#    depends_on:
+#      - nginx
+#    networks:
+#      - lab4_net
+#
+#networks:
+#  lab4_net:
+#    driver: bridge

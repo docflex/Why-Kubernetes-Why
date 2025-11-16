@@ -1,0 +1,19 @@
+server:
+  port: 8761
+
+spring:
+  main:
+    banner-mode: off
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    root: ERROR
+    org.springframework: ERROR
+    org.apache: ERROR
+    com.netflix: ERROR
+    org.springframework.cloud: ERROR
