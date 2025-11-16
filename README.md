@@ -157,7 +157,13 @@ Hello from Service B - service-b-1
 Run multiple times to confirm load balancing:
 
 ```bash
-for i in {1..6}; do curl -s http://localhost/service-b/hello; echo; done
+ while true; do
+  echo "\n---------------------------------------------------------------------------"
+  echo "A: $(curl -s http://localhost/service-a/hello)"
+  echo "\nB: $(curl -s http://localhost/service-b/hello)"
+  echo "---------------------------------------------------------------------------\n"
+  sleep 0.2
+done
 ```
 
 Each hit alternates between your service replicas.
