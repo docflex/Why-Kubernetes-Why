@@ -25,40 +25,6 @@ When new service instances register with **Eureka**, the sidecar polls the regis
 
 ![img.png](assets/img.png)
 
-```text
-┌────────────────────────────────────────────┐
-│             Docker Network                 │
-│                                            │
-│  ┌─────────────┐       ┌─────────────┐     │
-│  │ Service A   │       │ Service B   │     │
-│  │ (3 replicas)│       │ (3 replicas)│     │
-│  │ Spring Boot │       │ Spring Boot │     │
-│  └──────┬──────┘       └──────┬──────┘     │
-│         │                     │            │
-│         ▼                     ▼            │
-│     ┌──────────────────────────────┐       │
-│     │         Eureka Server        │       │
-│     │  Service registry & heartbeat│       │
-│     └──────────────────────────────┘       │
-│                  ▲                         │
-│                  │                         │
-│     ┌──────────────────────────────┐       │
-│     │  eureka2nginx (Python)       │       │
-│     │  Polls Eureka → writes:      │       │
-│     │   - /etc/nginx/conf.d/       │       │
-│     │     upstreams/<app>.conf     │       │
-│     │     servers/<app>.conf       │       │
-│     └──────────────────────────────┘       │
-│                  │                         │
-│                  ▼                         │
-│     ┌───────────────────────────────────┐  │
-│     │          NGINX Proxy              │  │
-│     │  - Reverse proxy for /service-a/* │  │
-│     │  - Load balances across instances │  │
-│     └───────────────────────────────────┘  │
-│                                            │
-└────────────────────────────────────────────┘
-```
 
 ---
 
